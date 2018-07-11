@@ -26,7 +26,8 @@ process psql_config {
     cd /ngstools/bin/pATLAS/patlas/db_manager
     service postgresql start
     service postgresql status
-    createdb $db_name_var
+    $ sudo -u postgres createuser patlas
+    createdb -U patlas $db_name_var
     /usr/bin/python3 db_create.py $db_name_var
     """
 

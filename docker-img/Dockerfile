@@ -5,6 +5,7 @@ RUN apt-get update && apt-get -y install \
     wget \
     postgresql \
     git \
+    bzip2 \
     sudo
 
 WORKDIR /ngstools/bin/
