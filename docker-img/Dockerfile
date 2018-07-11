@@ -5,7 +5,7 @@ RUN apt-get update && apt-get -y install \
     python3-pip \
     wget \
     postgresql \
-    git \
+    git
 
 WORKDIR /ngstools/bin/
 
