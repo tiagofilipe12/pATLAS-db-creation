@@ -20,7 +20,7 @@ ENV PATH="/ngstools/bin/mash-Linux64-v2.0:$PATH"
 # download patlas
 RUN git clone https://github.com/tiagofilipe12/pATLAS
 # install patlas dependencies
-RUN pip install -r pATLAS/requirements.txt
+RUN pip3 install -r pATLAS/requirements.txt
 
 # change workdir
 WORKDIR /data/
