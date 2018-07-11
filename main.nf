@@ -26,14 +26,24 @@ process psql_config {
     cd /ngstools/bin/pATLAS/patlas/db_manager
     service postgresql start
     service postgresql status
-    sudo -u postgres createuser patlas
-    createdb -U patlas $db_name_var
+    sudo -u postgres createuser -w -s root
+    createdb $db_name_var
     python3 db_create.py $db_name_var
     """
 
 }
 
 // 2) Download plasmid sequences from ncbi refseq ftp
+process download_fastas {
+
+    tag {"downloading plasmids from ncbi refseq ftp"}
+
+    """
+    wget $params.ncbi_ftp
+    gunzip plasmid.*.1.genomic.fna.gz
+    """
+
+}
 
 // 3) Run MASHix.py
 
