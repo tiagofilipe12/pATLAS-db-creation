@@ -22,9 +22,12 @@ process psql_config {
     val db_name_var from IN_db_name
 
     """
+    echo "Creating $db_name_var"
     cd /ngstools/bin/pATLAS/patlas/db_manager
-    pwd
-    python3 db_create.py $db_name_var
+    service postgresql start
+    service postgresql status
+    createdb $db_name_var
+    /usr/bin/python3 db_create.py $db_name_var
     """
 
 }

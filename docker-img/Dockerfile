@@ -4,7 +4,8 @@ MAINTAINER Tiago F. Jesus, tiagojesus@medicina.ulisboa.pt
 RUN apt-get update && apt-get -y install \
     wget \
     postgresql \
-    git
+    git \
+    sudo
 
 WORKDIR /ngstools/bin/
 
