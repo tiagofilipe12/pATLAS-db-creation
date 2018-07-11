@@ -26,15 +26,24 @@ process psql_config {
     cd /ngstools/bin/pATLAS/patlas/db_manager
     service postgresql start
     service postgresql status
-    $ sudo -u postgres createuser patlas
+    sudo -u postgres createuser patlas
     createdb -U patlas $db_name_var
-    /usr/bin/python3 db_create.py $db_name_var
+    python3 db_create.py $db_name_var
     """
 
 }
 
-// 1) Download plasmid sequences from ncbi refseq ftp
+// 2) Download plasmid sequences from ncbi refseq ftp
 
-// 2) Run MASHix.py
+// 3) Run MASHix.py
 
-// 3)
+// 3.1) generate indexes for bowtie2 nd samtools using fasta retrieved by MASHix.py
+
+// 3.2) generate index for mash retrieving it from MASHix.py
+
+// 4) Run abricate
+
+// 5) Run abricate2db.py
+
+// 6) dump database to a file
+
