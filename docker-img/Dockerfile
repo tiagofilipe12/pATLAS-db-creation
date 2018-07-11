@@ -2,7 +2,6 @@ FROM ubuntu:16.04
 MAINTAINER Tiago F. Jesus, tiagojesus@medicina.ulisboa.pt
 
 RUN apt-get update && apt-get -y install \
-    python3-pip \
     wget \
     postgresql \
     git
@@ -36,7 +35,7 @@ RUN cd /ngstools/bin/miniconda/db && mkdir virulencefinder && cp /ngstools/bin/v
 # download patlas
 RUN git clone https://github.com/tiagofilipe12/pATLAS
 # install patlas dependencies
-RUN pip3 install -r pATLAS/requirements.txt
+RUN pip install -r pATLAS/requirements.txt
 
 # change workdir
 WORKDIR /data/
