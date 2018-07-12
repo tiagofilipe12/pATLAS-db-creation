@@ -8,6 +8,7 @@ RUN apt-get update && apt-get -y install \
     git \
     sudo
 
+# change workdir for installers
 WORKDIR /ngstools/bin/
 
 # download mash
@@ -22,5 +23,10 @@ RUN git clone https://github.com/tiagofilipe12/pATLAS
 # install patlas dependencies
 RUN pip3 install -r pATLAS/requirements.txt
 
-# change workdir
+#place patlas scripts in path
+ENV PATH="/ngstools/bin/pATLAS/patlas/:/ngstools/bin/pATLAS/patlas/db_manager:$PATH"
+
+# change workdir to store files
 WORKDIR /data/
+
+RUN apt-get update && apt-get -y install vim
