@@ -34,16 +34,19 @@ process runMASHix {
 
     tag {"Running MASHix"}
 
-    publishDir "/results"
+    publishDir "results"
 
     input:
     file fastas from downloadedFastas
     val db_name_var from IN_db_name
 
     output:
-    file "new_db/*.fas" into masterFasta
-    file "new_db/results/*.json" into patlasJson
+    file "${db_name_var}/*.fas" into masterFasta
+    file "${db_name_var}/results/*.json" into patlasJson
     file "*.json" into taxaTree
+    file "*sql" into sqlFile
+    file "${db_name_var}/*json" into lenghtJson
+    file "${db_name_var}/reference_sketch/${db_name_var}_reference.msh" into mashIndex
 
     """
     echo "Configuring psql and creating $db_name_var"
@@ -56,8 +59,9 @@ process runMASHix {
     wget ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
     tar -xvzf taxdump.tar.gz
     echo "Running MASHix.py"
-    MASHix.py -i ${fastas} -o new_db -t ${task.cpus} -non nodes.dmp \
+    MASHix.py -i ${fastas} -o ${db_name_var} -t ${task.cpus} -non nodes.dmp \
     -nan names.dmp -rm -db ${db_name_var}
+    echo "Dumping to database file"
     pg_dump ${db_name_var} > ${db_name_var}.sql
     rm *.dmp *.prt *.txt *.tar.gz
     """
@@ -68,13 +72,13 @@ process runMASHix {
 
 process bowtieIndex {
 
-    tag {creating bowtie2 index}
+    tag {"creating bowtie2 index"}
 
     input:
     file masterFastaFile from masterFasta
 
     """
-    echo $masterFasta
+    echo ${masterFastaFile}
     """
 
 }
