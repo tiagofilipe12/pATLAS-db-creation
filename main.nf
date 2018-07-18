@@ -13,7 +13,7 @@ if (params.db_name instanceof String) {
     println("Variable db_name isn't a string and should be a string.")
 }
 
-// 2) Download plasmid sequences from ncbi refseq ftp
+// Download plasmid sequences from ncbi refseq ftp
 process downloadFastas {
 
     tag {"downloading plasmids from ncbi refseq ftp"}
@@ -29,12 +29,12 @@ process downloadFastas {
 
 }
 
-// 3) Run MASHix.py
+// Run MASHix.py
 process runMASHix {
 
     tag {"Running MASHix"}
 
-    publishDir "results"
+    publishDir "results/MAHSix/"
 
     input:
     file fastas from downloadedFastas
@@ -44,7 +44,7 @@ process runMASHix {
     file "${db_name_var}/*.fas" into masterFasta
     file "${db_name_var}/results/*.json" into patlasJson
     file "*.json" into taxaTree
-    file "*sql" into sqlFile
+    file "*sql" into sqlFileMashix
     file "${db_name_var}/*json" into lenghtJson
     file "${db_name_var}/reference_sketch/${db_name_var}_reference.msh" into mashIndex
 
@@ -68,26 +68,85 @@ process runMASHix {
 
 }
 
-// 3.1) generate indexes for bowtie2 nd samtools using fasta retrieved by MASHix.py
-
+// Generate indexes for bowtie2 nd samtools using fasta retrieved by MASHix.py
 process bowtieIndex {
 
     tag {"creating bowtie2 index"}
 
+    publishDir "results/bowtie_samtools_indexes/"
+
     input:
     file masterFastaFile from masterFasta
 
+    output:
+    file "*bowtie2_index.*" into bowtieIndexChannel
+    file "*.fai" into samtoolsIndexChannel
+
     """
-    echo ${masterFastaFile}
+    echo "Creating bowtie2 index"
+    bowtie2-build -q ${masterFastaFile} --threads ${task.cpus} \
+    patlas_bowtie2_index
+    echo "Creating samtools index"
+    samtools faidx patlas_samtools_index.fai
     """
 
 }
 
-// 3.2) generate index for mash retrieving it from MASHix.py
+// executes abricate for the fasta with pATLAS database
+process abricate {
 
-// 4) Run abricate
+    tag {"running abricate"}
 
-// 5) Run abricate2db.py
+    input:
+    file masterFastaFile from masterFasta
+    each db from params.abricateDatabases
 
-// 6) dump database to a file
+    output:
+    file "*.tsv" into abricateOutputs
 
+    """
+    abricate --db ${db} ${masterFastaFile} > abr_${db}.tsv
+    """
+
+}
+
+// dump abricate results to database
+process abricate2db {
+
+    tag {"sending abricate to database"}
+
+    publishDir "results/sql_file/"
+
+    input:
+    file abricate from abricateOutputs.collect()
+    file sqlFile from sqlFileMashix
+    val db_name_var from IN_db_name
+
+    output:
+    file "*final.sql" into FinalDbSql
+
+    """
+    echo ${abricate}
+    echo "Configuring psql and creating $db_name_var"
+    service postgresql start
+    service postgresql status
+    sudo -u postgres createuser -w -s root
+    createdb $db_name_var
+    psql -d ${db_name_var} -f ${db_name_var}.sql
+    echo "Dumping into database - resistance"
+    abricate2db.py -i abr_card.tsv abr_resfinder.tsv -db resistance \
+    -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
+    -db_psql ${db_name_var}
+    echo "Dumping into database - plasmidfinder"
+    abricate2db.py -i abr_plasmidfinder.tsv -db plasmidfinder \
+    -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
+    -db_psql ${db_name_var}
+    echo "Dumping into database - virulence"
+    abricate2db.py -i abr_vfdb.tsv -db virulence \
+    -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
+    -db_psql ${db_name_var}
+    echo "Writing to sql file"
+    pg_dump ${db_name_var} > ${db_name_var}_final.sql
+    """
+
+}
