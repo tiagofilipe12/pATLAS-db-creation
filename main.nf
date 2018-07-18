@@ -49,11 +49,9 @@ process runMASHix {
     file "${db_name_var}/reference_sketch/${db_name_var}_reference.msh" into mashIndex
 
     """
-    echo "Configuring psql and creating $db_name_var"
-    service postgresql start
-    service postgresql status
-    sudo -u postgres createuser -w -s root
-    createdb $db_name_var
+    echo "Creating $db_name_var"
+    /ngstools/bin/postgres/bin/pg_ctl -D /ngstools/bin/postgres/data -l logfile start
+    /ngstools/bin/postgres/bin/createdb $db_name_var
     db_create.py $db_name_var
     echo "Downloading ncbi taxonomy"
     wget ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
@@ -62,7 +60,7 @@ process runMASHix {
     MASHix.py -i ${fastas} -o ${db_name_var} -t ${task.cpus} -non nodes.dmp \
     -nan names.dmp -rm -db ${db_name_var}
     echo "Dumping to database file"
-    pg_dump ${db_name_var} > ${db_name_var}.sql
+    /ngstools/bin/postgres/bin/pg_dump ${db_name_var} > ${db_name_var}.sql
     rm *.dmp *.prt *.txt *.tar.gz
     """
 
@@ -126,11 +124,9 @@ process abricate2db {
     file "*final.sql" into FinalDbSql
 
     """
-    echo ${abricate}
-    echo "Configuring psql and creating $db_name_var"
-    service postgresql start
-    service postgresql status
-    sudo -u postgres createuser -w -s root
+    echo "Creating $db_name_var"
+    /ngstools/bin/postgres/bin/pg_ctl -D /ngstools/bin/postgres/data -l logfile start
+    /ngstools/bin/postgres/bin/createdb $db_name_var
     createdb $db_name_var
     psql -d ${db_name_var} -f ${db_name_var}.sql
     echo "Dumping into database - resistance"
@@ -146,7 +142,7 @@ process abricate2db {
     -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
     -db_psql ${db_name_var}
     echo "Writing to sql file"
-    pg_dump ${db_name_var} > ${db_name_var}_final.sql
+    /ngstools/bin/postgres/bin/pg_dump ${db_name_var} > ${db_name_var}_final.sql
     """
 
 }
