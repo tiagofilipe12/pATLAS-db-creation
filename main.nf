@@ -127,8 +127,7 @@ process abricate2db {
     echo "Creating $db_name_var"
     /ngstools/bin/postgres/bin/pg_ctl -D /ngstools/bin/postgres/data -l logfile start
     /ngstools/bin/postgres/bin/createdb $db_name_var
-    createdb $db_name_var
-    psql -d ${db_name_var} -f ${db_name_var}.sql
+    /ngstools/bin/postgres/bin/psql -d ${db_name_var} -f ${db_name_var}.sql
     echo "Dumping into database - resistance"
     abricate2db.py -i abr_card.tsv abr_resfinder.tsv -db resistance \
     -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
