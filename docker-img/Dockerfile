@@ -19,19 +19,6 @@ RUN gunzip postgresql-10.1.tar.gz
 RUN tar xf postgresql-10.1.tar
 RUN rm postgresql-10.1.tar
 
-# Install postgres from source
-WORKDIR /ngstools/bin/postgresql-10.1/
-RUN ./configure --prefix=/ngstools/bin/postgres/ --with-python PYTHON=/usr/bin/python3
-RUN make -j 3
-RUN make install
-WORKDIR /ngstools/bin/postgres
-RUN mkdir /ngstools/bin/postgres/data
-RUN useradd patlas
-RUN chown -R patlas .
-USER patlas
-RUN /ngstools/bin/postgres/bin/initdb -D /ngstools/bin/postgres/data
-# end of psql config
-
 # change workdir for installers
 WORKDIR /ngstools/bin/
 
@@ -62,3 +49,17 @@ RUN wget https://card.mcmaster.ca/download/0/broadstreet-v2.0.2.tar.gz
 RUN tar xvjf broadstreet-v2.0.2.tar.gz
 
 RUN rm *.fasta *.txt *.json aro_categories* broadstreet-v2.0.2.tar.gz
+
+
+# Install postgres from source
+WORKDIR /ngstools/bin/postgresql-10.1/
+RUN ./configure --prefix=/ngstools/bin/postgres/ --with-python PYTHON=/usr/bin/python3
+RUN make -j 3
+RUN make install
+WORKDIR /ngstools/bin/postgres
+RUN mkdir /ngstools/bin/postgres/data
+RUN useradd patlas
+RUN chown -R patlas .
+USER patlas
+RUN /ngstools/bin/postgres/bin/initdb -D /ngstools/bin/postgres/data
+# end of psql config
