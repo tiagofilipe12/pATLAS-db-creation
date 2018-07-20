@@ -76,6 +76,25 @@ process runMASHix {
 
 }
 
+process samtoolsIndex{
+
+    tag {"Creating samtools index"}
+
+    publishDir "results/samtools_indexes/"
+
+    input:
+    file masterFastaFile from masterFasta
+
+    output:
+    file "*.fai" into samtoolsIndexChannel
+
+    """
+    #echo "Creating samtools index"
+    #samtools faidx ${masterFastaFile}
+    """
+
+}
+
 // executes abricate for the fasta with pATLAS database
 process abricate {
 
@@ -140,21 +159,19 @@ process bowtieIndex {
 
     tag {"creating bowtie2 index"}
 
-    publishDir "results/bowtie_samtools_indexes/"
+    publishDir "results/bowtie_indexes/"
 
     input:
     file masterFastaFile from masterFasta
 
     output:
     file "*bowtie2_index.*" into bowtieIndexChannel
-    file "*.fai" into samtoolsIndexChannel
+    //file "*.fai" into samtoolsIndexChannel
 
     """
     echo "Creating bowtie2 index"
     bowtie2-build -q ${masterFastaFile} --threads ${task.cpus} \
     patlas_bowtie2_index
-    echo "Creating samtools index"
-    samtools faidx ${masterFastaFile}
     """
 
 }
