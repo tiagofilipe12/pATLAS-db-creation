@@ -54,6 +54,7 @@ process runMASHix {
     file "*sql" into sqlFileMashix
     file "${db_name_var}/*json" into lenghtJson
     file "${db_name_var}/reference_sketch/${db_name_var}_reference.msh" into mashIndex
+    file "${db_name_var}/*.txt" into actualRemovedSequences
 
     """
     echo "Configuring psql and creating $db_name_var"
