@@ -13,6 +13,12 @@ if (params.db_name instanceof String) {
     println("Variable db_name isn't a string and should be a string.")
 }
 
+if (params.sequencesRemove == true) {
+    IN_sequences_removal = Channel.value("--search-sequences-to-remove")
+} else {
+    IN_sequences_removal = Channel.value("")
+}
+
 // Download plasmid sequences from ncbi refseq ftp
 process downloadFastas {
 
@@ -39,6 +45,7 @@ process runMASHix {
     input:
     file fastas from downloadedFastas
     val db_name_var from IN_db_name
+    val sequencesToRemove from IN_sequences_removal
 
     output:
     file "${db_name_var}/*.fas" into masterFasta
@@ -60,7 +67,7 @@ process runMASHix {
     tar -xvzf taxdump.tar.gz
     echo "Running MASHix.py"
     MASHix.py -i ${fastas} -o ${db_name_var} -t ${task.cpus} -non nodes.dmp \
-    -nan names.dmp -rm -db ${db_name_var}
+    -nan names.dmp -rm ${sequencesToRemove} -db ${db_name_var}
     echo "Dumping to database file"
     pg_dump ${db_name_var} > ${db_name_var}.sql
     rm *.dmp *.prt *.txt *.tar.gz
