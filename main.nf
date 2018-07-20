@@ -87,7 +87,7 @@ process bowtieIndex {
     bowtie2-build -q ${masterFastaFile} --threads ${task.cpus} \
     patlas_bowtie2_index
     echo "Creating samtools index"
-    samtools faidx patlas_samtools_index.fai
+    samtools faidx ${masterFastaFile}
     """
 
 }
