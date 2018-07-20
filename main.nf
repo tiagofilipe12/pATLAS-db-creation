@@ -127,6 +127,7 @@ process abricate2db {
 
     output:
     file "*final.sql" into FinalDbSql
+    file "*.json" into dropdownJsons
 
     """
     echo ${abricate}
