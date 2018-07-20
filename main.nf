@@ -89,8 +89,8 @@ process samtoolsIndex{
     file "*.fai" into samtoolsIndexChannel
 
     """
-    #echo "Creating samtools index"
-    #samtools faidx ${masterFastaFile}
+    echo "Creating samtools index"
+    samtools faidx ${masterFastaFile}
     """
 
 }
