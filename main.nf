@@ -40,7 +40,7 @@ process runMASHix {
 
     tag {"Running MASHix"}
 
-    publishDir "results/MAHSix/"
+    publishDir "results/MASHix/"
 
     input:
     file fastas from downloadedFastas
