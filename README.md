@@ -12,6 +12,16 @@ to construct [pATLAS](www.patlas.site), including:
 
 [pATLAS source code](https://github.com/tiagofilipe12/pATLAS)
 
+## Workflow
+
+This nextflow script intends to handle everything that is required to create
+pATLas database, from download of sequences from [NCBI ftp](ftp://ftp.ncbi.nlm.nih.gov/refseq/release/plasmid/)
+ to the final PostgreSQL database, with the sequences for all plasmids,
+ metadata, annotations and other sql tables required for pATLAS REST API
+ (requests of sequences, metadata or even to display results using a `POST`
+ from an external pipeline). [Here](https://tiagofilipe12.gitbooks.io/patlas/content/database_creation.html)
+ is a description of the steps that this script handles.
+
 ## Usage
 
 ```
