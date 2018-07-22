@@ -3,14 +3,17 @@ This repository is a wrapper for the creation of pATLAs database. It
 will not make the pATLAS service run but will create the necessary files
 to construct [pATLAS](www.patlas.site), including:
 
-* JSON file for the initial load of pATLAS (devel session)
-* sql file to migrate the database between machines.
-* JSON files that are used to populate the drop down menus of pATLAS.
-* Fasta file with all the sequences available in pATLAS
-    * indexes for bowtie2 and samtools (required by pATLASflow)
-    * index for mash (required by pATLASflow)
+* JSON file for the initial load of pATLAS (devel session) - `results/MASHix/<database_name>/results/import_to_vivagraph.json`.
+* sql file to migrate the database between machines - `results/sql_file/<database_name>_final.sql`.
+* JSON files that are used to populate the drop down menus of pATLAS -
+`results/sql_file/*.json` and `results/MASHix/taxa_tree.json`.
+* Fasta file with all the sequences available in pATLAS - `resuts/MASHix/<database_name>/master_fasta_<database_name>.fas`
+    * indexes for bowtie2 and samtools (required by pATLASflow) - `results/samtools_indexes/*.fai`
+    * index for mash (required by pATLASflow) - `results/bowtie_indexes/bowtie2_index*`
+    * json file used by [pATLASflow](https://github.com/tiagofilipe12/pATLASflow) and [FlowCraft](https://github.com/assemblerflow/flowcraft)
+    to fetch a dictionary of plasmid sizes - `results/MASHix/<database_name>/length_<database_name>.json`.
 
-[pATLAS source code](https://github.com/tiagofilipe12/pATLAS)
+Link to [pATLAS source code](https://github.com/tiagofilipe12/pATLAS).
 
 ## Workflow
 
