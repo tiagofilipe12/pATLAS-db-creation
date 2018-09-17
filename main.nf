@@ -98,7 +98,7 @@ process samtoolsIndex{
 // executes abricate for the fasta with pATLAS database
 process abricate {
 
-    tag {"running abricate"}
+    tag {"updating plasmidfinder database and running abricate"}
 
     input:
     file masterFastaFile from masterFasta
@@ -108,6 +108,10 @@ process abricate {
     file "*.tsv" into abricateOutputs
 
     """
+    echo "fetching latest plasmidfinder_db and creating abricate db"
+    git clone https://bitbucket.org/genomicepidemiology/plasmidfinder_db/
+    cd plasmidfinder_db/ && cat *.fsa >> sequences
+    abricate --setupdb && cd ..
     abricate --db ${db} ${masterFastaFile} > abr_${db}.tsv
     """
 
@@ -141,8 +145,8 @@ process abricate2db {
     abricate2db.py -i abr_card.tsv abr_resfinder.tsv -db resistance \
     -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
     -db_psql ${db_name_var}
-    echo "Dumping into database - plasmidfinder"
-    abricate2db.py -i abr_plasmidfinder.tsv -db plasmidfinder \
+    echo "Dumping into database - plasmidfinder_db latest"
+    abricate2db.py -i abr_plasmidfinder_db.tsv -db plasmidfinder \
     -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
     -db_psql ${db_name_var}
     echo "Dumping into database - virulence"
