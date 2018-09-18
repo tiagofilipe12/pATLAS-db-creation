@@ -113,6 +113,7 @@ process abricate {
     cd plasmidfinder_db/ && cat *.fsa >> sequences
     abricate --setupdb && cd ..
     abricate --db ${db} ${masterFastaFile} > abr_${db}.tsv
+    abricate --db plasmidfinder_db --datadir plasmidfinder_db/ ${masterFastaFile} > abr_plasmidfinder_db.tsv
     """
 
 }
