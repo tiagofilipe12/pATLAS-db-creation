@@ -131,7 +131,6 @@ process abricate_plasmidfinder_db {
     abricate --setupdb && cd ..
     abricate --db plasmidfinder_db --datadir ${workflow.workDir} ${masterFastaFile} > abr_plasmidfinder_db.tsv
     """
-
 }
 
 // dump abricate results to database
