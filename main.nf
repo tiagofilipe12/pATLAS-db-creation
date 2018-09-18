@@ -98,7 +98,7 @@ process samtoolsIndex{
 // executes abricate for the fasta with pATLAS database
 process abricate {
 
-    tag {"updating plasmidfinder database and running abricate"}
+    tag {"running abricate"}
 
     input:
     file masterFastaFile from masterFasta
@@ -108,12 +108,29 @@ process abricate {
     file "*.tsv" into abricateOutputs
 
     """
+    abricate --db ${db} ${masterFastaFile} > abr_${db}.tsv
+    """
+
+}
+
+// a process for the updated plasmidfinder db
+process abricate_plasmidfinder_db {
+
+    tag {"updating plasmidfinder database and running abricate"}
+
+    input:
+    file masterFastaFile from masterFasta
+
+    output:
+    file "*.tsv" into abricateOutputsPlasmidFinder
+
+    """
     echo "fetching latest plasmidfinder_db and creating abricate db"
     git clone https://bitbucket.org/genomicepidemiology/plasmidfinder_db/
     cd plasmidfinder_db/ && cat *.fsa >> sequences
     abricate --setupdb && cd ..
-    abricate --db ${db} ${masterFastaFile} > abr_${db}.tsv
-    abricate --db plasmidfinder_db --datadir ./ ${masterFastaFile} > abr_plasmidfinder_db.tsv
+    currentwd="$PWD"
+    abricate --db plasmidfinder_db --datadir $currentwd ${masterFastaFile} > abr_plasmidfinder_db.tsv
     """
 
 }
@@ -127,6 +144,7 @@ process abricate2db {
 
     input:
     file abricate from abricateOutputs.collect()
+    file abricatePlasmidFinder from abricateOutputsPlasmidFinder
     file sqlFile from sqlFileMashix
     val db_name_var from IN_db_name
 
