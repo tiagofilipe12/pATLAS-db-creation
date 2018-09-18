@@ -129,8 +129,7 @@ process abricate_plasmidfinder_db {
     git clone https://bitbucket.org/genomicepidemiology/plasmidfinder_db/
     cd plasmidfinder_db/ && cat *.fsa >> sequences
     abricate --setupdb && cd ..
-    currentwd="$PWD"
-    abricate --db plasmidfinder_db --datadir $currentwd ${masterFastaFile} > abr_plasmidfinder_db.tsv
+    abricate --db plasmidfinder_db --datadir ${workflow.workDir} ${masterFastaFile} > abr_plasmidfinder_db.tsv
     """
 
 }
