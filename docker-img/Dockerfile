@@ -20,7 +20,11 @@ ENV PATH="/ngstools/bin/mash-Linux64-v2.0:$PATH"
 
 # download patlas
 RUN git clone https://github.com/tiagofilipe12/pATLAS
+
+#TODO remove in the future
+RUN cd pATLAS
 RUN git checkout backend_1.6.0
+RUN cd ..
 # install patlas dependencies
 RUN pip3 install -r pATLAS/requirements.txt
 
