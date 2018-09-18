@@ -125,11 +125,11 @@ process abricate_plasmidfinder_db {
     file "*.tsv" into abricateOutputsPlasmidFinder
 
     """
-    echo "fetching latest plasmidfinder_db and creating abricate db"
     git clone https://bitbucket.org/genomicepidemiology/plasmidfinder_db/
     cd plasmidfinder_db/ && cat *.fsa >> sequences
-    abricate --setupdb && cd ..
-    abricate --db plasmidfinder_db --datadir ${workflow.workDir} ${masterFastaFile} > abr_plasmidfinder_db.tsv
+    makeblastdb -in sequences -title tinyamr -dbtype nucl -parse_seqids -hash_index
+    cd ..
+    abricate --db plasmidfinder_db --datadir ./ ${masterFastaFile} > abr_plasmidfinder_db.tsv
     """
 }
 
