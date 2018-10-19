@@ -170,6 +170,10 @@ process abricate2db {
     abricate2db.py -i abr_vfdb.tsv -db virulence \
     -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
     -db_psql ${db_name_var}
+    echo "Dumping into database - bacmet"
+    abricate2db.py -i abr_bacmet.tsv -db metal \
+    -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
+    -db_psql ${db_name_var}
     echo "Writing to sql file"
     pg_dump ${db_name_var} > ${db_name_var}_final.sql
     """
