@@ -48,7 +48,7 @@ process runMASHix {
     val sequencesToRemove from IN_sequences_removal
 
     output:
-    file "${db_name_var}/*.fas" into masterFasta
+    file "${db_name_var}/*.fas" into {masterFasta_abricate, masterFasta_abricatepf, masterFasta_samtools, masterFasta_bowtie2}
     file "${db_name_var}/results/*.json" into patlasJson
     file "*.json" into taxaTree
     file "*sql" into sqlFileMashix
@@ -83,7 +83,7 @@ process samtoolsIndex{
     publishDir "results/samtools_indexes/"
 
     input:
-    file masterFastaFile from masterFasta
+    file masterFastaFile from masterFasta_samtools
 
     output:
     file "*.fai" into samtoolsIndexChannel
@@ -101,7 +101,7 @@ process abricate {
     tag {"running abricate"}
 
     input:
-    file masterFastaFile from masterFasta
+    file masterFastaFile from masterFasta_abricate
     each db from params.abricateDatabases
 
     output:
@@ -119,7 +119,7 @@ process abricate_plasmidfinder_db {
     tag {"updating plasmidfinder database and running abricate"}
 
     input:
-    file masterFastaFile from masterFasta
+    file masterFastaFile from masterFasta_abricatepf
 
     output:
     file "*.tsv" into abricateOutputsPlasmidFinder
@@ -188,7 +188,7 @@ process bowtieIndex {
     publishDir "results/bowtie_indexes/"
 
     input:
-    file masterFastaFile from masterFasta
+    file masterFastaFile from masterFasta_bowtie2
 
     output:
     file "*bowtie2_index.*" into bowtieIndexChannel
