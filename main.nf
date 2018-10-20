@@ -48,7 +48,7 @@ process runMASHix {
     val sequencesToRemove from IN_sequences_removal
 
     output:
-    file "${db_name_var}/*.fas" into {masterFasta_abricate, masterFasta_abricatepf, masterFasta_samtools, masterFasta_bowtie2}
+    file "${db_name_var}/*.fas" into (masterFasta_abricate, masterFasta_abricatepf, masterFasta_samtools, masterFasta_bowtie2)
     file "${db_name_var}/results/*.json" into patlasJson
     file "*.json" into taxaTree
     file "*sql" into sqlFileMashix
