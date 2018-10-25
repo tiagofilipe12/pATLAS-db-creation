@@ -42,8 +42,7 @@ RUN rm diamond-linux64.tar.gz *.pdf LICENSE
 ENV PATH="/ngstools/bin/:$PATH"
 
 # ADD BacMet database
-#RUN mkdir /NGStools/bacmet
-WORKDIR /NGStools/bacmet
+WORKDIR /ngstools/bin/bacmet
 RUN wget http://bacmet.biomedicine.gu.se/download/BacMet2_EXP_database.fasta
 # makes diamond db
 RUN diamond makedb --in BacMet2_EXP_database.fasta -d bacmet
