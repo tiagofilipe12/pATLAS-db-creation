@@ -146,8 +146,8 @@ process diamond {
     file "*.txt" into diamondOutputs
 
     """
-    diamond blastx -d bacmet -q ${masterFastaFile} -o ${db}.txt -e 1E-20 \
-    -p ${task.cpus}
+    diamond blastx -d /ngstools/bin/bacmet/bacmet -q ${masterFastaFile} \
+    -o ${db}.txt -e 1E-20 -p ${task.cpus} \
     -f 6 qseqid sseqid pident length mismatch gapopen qstart qend slen sstart send evalue bitscore
     """
 
