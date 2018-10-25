@@ -48,7 +48,7 @@ process runMASHix {
     val sequencesToRemove from IN_sequences_removal
 
     output:
-    file "${db_name_var}/*.fas" into (masterFasta_abricate, masterFasta_abricatepf, masterFasta_samtools, masterFasta_bowtie2)
+    file "${db_name_var}/*.fas" into (masterFasta_abricate, masterFasta_abricatepf, masterFasta_samtools, masterFasta_bowtie2, masterFasta_diamond)
     file "${db_name_var}/results/*.json" into patlasJson
     file "*.json" into taxaTree
     file "*sql" into sqlFileMashix
@@ -133,7 +133,26 @@ process abricate_plasmidfinder_db {
     """
 }
 
-// dump abricate results to database
+// process to run diamond for the bacmet database
+process diamond {
+
+    tag {"running diamond"}
+
+    input:
+    file masterFastaFile from masterFasta_diamond
+    each db from params.diamondDatabases
+
+    output:
+    file "*.txt" into diamondOutputs
+
+    """
+    diamond blastx -d bacmet -q ${masterFastaFile} -o ${db}.txt -e 1E-20 \
+    -f 6 qseqid sseqid pident length mismatch gapopen qstart qend slen sstart send evalue bitscore
+    """
+
+}
+
+// dump abricate and diamond results to database
 process abricate2db {
 
     tag {"sending abricate to database"}
@@ -142,6 +161,7 @@ process abricate2db {
 
     input:
     file abricate from abricateOutputs.collect()
+    file diamond from diamondOutputs.collect()
     file abricatePlasmidFinder from abricateOutputsPlasmidFinder
     file sqlFile from sqlFileMashix
     val db_name_var from IN_db_name
@@ -171,9 +191,7 @@ process abricate2db {
     -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
     -db_psql ${db_name_var}
     echo "Dumping into database - bacmet"
-    abricate2db.py -i abr_bacmet.tsv -db metal \
-    -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
-    -db_psql ${db_name_var}
+    diamond2db.py -db metal -i bacmet.txt -db_psql ${db_name_var}
     echo "Writing to sql file"
     pg_dump ${db_name_var} > ${db_name_var}_final.sql
     """
