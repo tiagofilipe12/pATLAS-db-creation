@@ -48,7 +48,7 @@ process runMASHix {
     val sequencesToRemove from IN_sequences_removal
 
     output:
-    file "${db_name_var}/*.fas" into masterFasta
+    file "${db_name_var}/*.fas" into (masterFasta_abricate, masterFasta_abricatepf, masterFasta_samtools, masterFasta_bowtie2, masterFasta_diamond)
     file "${db_name_var}/results/*.json" into patlasJson
     file "*.json" into taxaTree
     file "*sql" into sqlFileMashix
@@ -83,7 +83,7 @@ process samtoolsIndex{
     publishDir "results/samtools_indexes/"
 
     input:
-    file masterFastaFile from masterFasta
+    file masterFastaFile from masterFasta_samtools
 
     output:
     file "*.fai" into samtoolsIndexChannel
@@ -101,7 +101,7 @@ process abricate {
     tag {"running abricate"}
 
     input:
-    file masterFastaFile from masterFasta
+    file masterFastaFile from masterFasta_abricate
     each db from params.abricateDatabases
 
     output:
@@ -119,7 +119,7 @@ process abricate_plasmidfinder_db {
     tag {"updating plasmidfinder database and running abricate"}
 
     input:
-    file masterFastaFile from masterFasta
+    file masterFastaFile from masterFasta_abricatepf
 
     output:
     file "*.tsv" into abricateOutputsPlasmidFinder
@@ -133,7 +133,27 @@ process abricate_plasmidfinder_db {
     """
 }
 
-// dump abricate results to database
+// process to run diamond for the bacmet database
+process diamond {
+
+    tag {"running diamond"}
+
+    input:
+    file masterFastaFile from masterFasta_diamond
+    each db from params.diamondDatabases
+
+    output:
+    file "*.txt" into diamondOutputs
+
+    """
+    diamond blastx -d /ngstools/bin/bacmet/bacmet -q ${masterFastaFile} \
+    -o ${db}.txt -e 1E-20 -p ${task.cpus} \
+    -f 6 qseqid sseqid pident length mismatch gapopen qstart qend slen sstart send evalue bitscore
+    """
+
+}
+
+// dump abricate and diamond results to database
 process abricate2db {
 
     tag {"sending abricate to database"}
@@ -142,6 +162,7 @@ process abricate2db {
 
     input:
     file abricate from abricateOutputs.collect()
+    file diamond from diamondOutputs.collect()
     file abricatePlasmidFinder from abricateOutputsPlasmidFinder
     file sqlFile from sqlFileMashix
     val db_name_var from IN_db_name
@@ -170,6 +191,8 @@ process abricate2db {
     abricate2db.py -i abr_vfdb.tsv -db virulence \
     -id ${params.abricateId} -cov ${params.abricateCov} -csv ${params.cardCsv} \
     -db_psql ${db_name_var}
+    echo "Dumping into database - bacmet"
+    diamond2db.py -db metal -i bacmet.txt -db_psql ${db_name_var}
     echo "Writing to sql file"
     pg_dump ${db_name_var} > ${db_name_var}_final.sql
     """
@@ -184,7 +207,7 @@ process bowtieIndex {
     publishDir "results/bowtie_indexes/"
 
     input:
-    file masterFastaFile from masterFasta
+    file masterFastaFile from masterFasta_bowtie2
 
     output:
     file "*bowtie2_index.*" into bowtieIndexChannel
